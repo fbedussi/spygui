@@ -1,0 +1,35 @@
+[class$="Btn"] {
+    display: none;
+}
+
+[class$="Btn"] + label {
+    padding: 10px 20px;
+    border: solid 1px black;
+    display: inline-block;
+}
+
+[class$="Btn"]:checked + label {
+    background: black;
+    color: white;
+}
+
+.closeBtn:not(:checked) + label .openTxt {
+    display: none;    
+}
+
+.closeBtn:checked + label .closeTxt {
+    display: none;    
+}
+
+.closeBtn:checked + label ~ div {
+    display: none;    
+}
+
+.line {
+    width: 2em;
+}
+
+.line + label {
+    display: inline-block;
+    width: calc(100% - 2.2em);
+}

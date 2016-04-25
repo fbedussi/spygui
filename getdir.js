@@ -16,15 +16,19 @@ module.exports = function walk(dir, done) {
       
       fs.stat(file, function(err, stat) {
         if (stat && stat.isDirectory()) {
-            //console.log(stat);
-            //results[file] = {};
             walk(file, function(err, res) {
-                //console.log(res);
-                results[fileName] = res;
+                results[fileName] = {
+                    type: 'dir',
+                    path: file,
+                    subDir: res
+                  };
                 if (!--pending) done(null, results);
             });
         } else {
-          results[fileName] = file;
+          results[fileName] = {
+            type: 'file',
+            path: file
+          };
           if (!--pending) done(null, results);
         }
       });
