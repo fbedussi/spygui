@@ -1,8 +1,8 @@
 var path = require('path');
 var config = require('./config.js');
-//var Nightwatch = require(path.join(config.startingFolder, '/node_modules/nightwatch/lib/index.js'));
+var Nightwatch = require(path.join(config.startingFolder, '/node_modules/nightwatch/lib/index.js'));
 
-module.exports = function(paramObj, Nightwatch) {
+module.exports = function(paramObj) {
     try {
         var groupKey = Object.keys(paramObj).filter(function(key) {
             return paramObj[key].type === 'dir';

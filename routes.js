@@ -4,7 +4,7 @@ var getdir = require('./getdir.js');
 var startTest = require('./startTest');
 var config = require('./config.js');
 
-module.exports = function(app, Nightwatch) {
+module.exports = function(app) {
 
     app.use('/', express.static(__dirname));
     
@@ -17,7 +17,7 @@ module.exports = function(app, Nightwatch) {
     app.post('/launchspy', function(req, res) {
         console.log(req.body);
         res.end();
-        startTest(req.body, Nightwatch);
+        startTest(req.body);
     });
     
 }
