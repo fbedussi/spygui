@@ -1,12 +1,15 @@
-var getdir = require("./getdir.js");
-var express = require("express");
+var express = require('express');
+var path = require('path');
+var getdir = require('./getdir.js');
+var startTest = require('./startTest');
+var config = require('./config.js');
 
-module.exports = function(app) {
+module.exports = function(app, Nightwatch) {
 
-    app.use("/", express.static(__dirname));
+    app.use('/', express.static(__dirname));
     
-    app.get("/features", function(req, res) {
-        getdir(__dirname, function(err, data) {
+    app.get('/features', function(req, res) {
+        getdir(path.join(config.startingFolder, 'features'), function(err, data) {
             res.send(data);   
         })
     });
@@ -14,6 +17,7 @@ module.exports = function(app) {
     app.post('/launchspy', function(req, res) {
         console.log(req.body);
         res.end();
+        startTest(req.body, Nightwatch);
     });
     
 }
