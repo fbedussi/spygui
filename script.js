@@ -47,7 +47,7 @@ var submitBtn = document.getElementById('submitBtn');
                 cb.setAttribute('checked', 'checked');
             }
             if ( obj[attrObj.value].path) {cb.setAttribute('data-path', obj[attrObj.value].path);}
-            cb.setAttribute('data-type', obj[attrObj.value].type);
+            if (attrObj.dataType) {cb.setAttribute('data-type', attrObj.dataType);}
             label.setAttribute('for', attrObj.id);
             label.appendChild(text);
             attrObj.parent.appendChild(cb);
@@ -55,54 +55,80 @@ var submitBtn = document.getElementById('submitBtn');
         }
 
         for (value in obj) {
-            if (obj[value].type === 'file' || obj[value].type === 'environment') {
-                insertInput({
-                    type: 'checkbox',
-                    value: value,
-                    labelText: value,
-                    className: 'line',
-                    id: value,
-                    parent: parent
-                });
-            } else {
-                var fieldset = document.createElement('fieldset');
-                var legend = document.createElement('legend');
-                var text = document.createTextNode(value);
-                var div = document.createElement('div');
-                var closeContainer = document.createElement('span');
-                var openContainer = document.createElement('span');
-                var openCloseContainer = document.createElement('span');
-                var openText = document.createTextNode('open');
-                var closeText = document.createTextNode('close');
-                openContainer.appendChild(openText);
-                openContainer.setAttribute('class', 'openTxt');
-                closeContainer.appendChild(closeText);
-                closeContainer.setAttribute('class', 'closeTxt');
-                openCloseContainer.appendChild(openContainer);
-                openCloseContainer.appendChild(closeContainer);
-                legend.appendChild(text);
-                fieldset.appendChild(legend);
-                parent.appendChild(fieldset);
-                insertInput({
-                    type: 'checkbox',
-                    value: value,
-                    labelText: openCloseContainer,
-                    className: 'closeBtn',
-                    id: value + '_close',
-                    checked: true,
-                    parent: fieldset
-                });
-                insertInput({
-                    type: 'radio',
-                    name: 'selectFolder',
-                    value: value,
-                    labelText: 'ENTIRE FOLDER',
-                    className: 'folderBtn',
-                    id: value + '_entire',
-                    parent: fieldset
-                });
-                fieldset.appendChild(div);
-                insertLine(obj[value].subDir, div);
+            switch (obj[value].type) {
+                case 'file':
+                    insertInput({
+                        type: 'checkbox',
+                        value: value,
+                        labelText: value,
+                        className: 'line',
+                        dataType: 'file',
+                        id: value,
+                        parent: parent
+                    });
+                    break;
+                case  'environment':
+                    insertInput({
+                        type: 'checkbox',
+                        value: value,
+                        labelText: value,
+                        className: 'line',
+                        dataType: 'environment',
+                        id: value,
+                        checked: (value === 'chrome')? 'checked' : false,
+                        parent: parent
+                    });
+                    break;
+                default:
+                    var fieldset = document.createElement('fieldset');
+                    var legend = document.createElement('legend');
+                    var text = document.createTextNode(value);
+                    var div = document.createElement('div');
+                    var closeContainer = document.createElement('span');
+                    var openContainer = document.createElement('span');
+                    var openCloseContainer = document.createElement('span');
+                    var openText = document.createTextNode('open');
+                    var closeText = document.createTextNode('close');
+                    openContainer.appendChild(openText);
+                    openContainer.setAttribute('class', 'openTxt');
+                    closeContainer.appendChild(closeText);
+                    closeContainer.setAttribute('class', 'closeTxt');
+                    openCloseContainer.appendChild(openContainer);
+                    openCloseContainer.appendChild(closeContainer);
+                    legend.appendChild(text);
+                    fieldset.appendChild(legend);
+                    parent.appendChild(fieldset);
+                    insertInput({
+                        type: 'checkbox',
+                        value: value,
+                        labelText: openCloseContainer,
+                        className: 'closeBtn',
+                        dataType: 'close',
+                        id: value + '_close',
+                        checked: true,
+                        parent: fieldset
+                    });
+                    insertInput({
+                        type: 'radio',
+                        name: 'selectFolder',
+                        value: value,
+                        labelText: 'select folder',
+                        className: 'folderBtn',
+                        dataType: 'dir',
+                        id: value + '_entire',
+                        parent: fieldset
+                    });
+                    insertInput({
+                        type: 'checkbox',
+                        value: value,
+                        labelText: 'exclude folder',
+                        className: 'folderBtn',
+                        dataType: 'exclude',
+                        id: value + '_entireExclude',
+                        parent: fieldset
+                    });
+                    fieldset.appendChild(div);
+                    insertLine(obj[value].subDir, div);
             }
         }
     }
@@ -134,6 +160,12 @@ var submitBtn = document.getElementById('submitBtn');
                     case 'dir':
                         objToSend.dir = el.getAttribute('data-path');
                         break;
+                    case 'exclude':
+                        if (!objToSend.exclude) {
+                            objToSend.exclude = [];
+                        }
+                        objToSend.exclude.push(el.getAttribute('data-path'))
+                        break;
                     default:
                         objToSend[el.id] = {
                             type: el.getAttribute('data-type'),
@@ -146,7 +178,13 @@ var submitBtn = document.getElementById('submitBtn');
         xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
 
         //.bind ensures that this inside of the function is the XHR object.
-        xhr.onload = callback.bind(xhr);
+        xhr.onreadystatechange = function() {
+            if (xhr.status !== 200) {
+                alert('App not responding, check if it\'s running');
+                return;
+            }
+            callback.call(null, xhr);
+        }
 
         //All preperations are clear, send the request!
         xhr.send(JSON.stringify(objToSend));
@@ -160,6 +198,11 @@ var submitBtn = document.getElementById('submitBtn');
         submitBtn.addEventListener('click', function (e) {
             e.preventDefault();
             app.ajaxPost(form, form.action, function () {
+                var testRunningMsg = document.getElementById('testRunningMsg');
+                testRunningMsg.style = '';
+                setTimeout(function() {
+                    testRunningMsg.style = 'display: none;';
+                },2000);
                 console.log('form submitted');
             });
         });

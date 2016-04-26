@@ -33,3 +33,11 @@
     display: inline-block;
     width: calc(100% - 2.2em);
 }
+
+.testRunningMsg {
+    text-align: center;
+    color: green;
+    font-size: 45px;
+    font-weight: bold;
+    font-family: impact;
+}
