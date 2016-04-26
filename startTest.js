@@ -4,16 +4,11 @@ var Nightwatch = require(path.join(config.startingFolder, '/node_modules/nightwa
 
 module.exports = function(paramObj) {
     try {
-        var groupKey = Object.keys(paramObj).filter(function(key) {
-            return paramObj[key].type === 'dir';
-        });
-        var groupPath = path.relative(path.join(config.startingFolder, 'features'), paramObj[groupKey].path);
-
-        //console.log('starting test | group:', groupPath);
+        
         Nightwatch.runner(
             {
-                env: 'chrome',
-                group: groupPath
+                env: paramObj.environments.join(','),
+                group: path.relative(path.join(config.startingFolder, 'features'), paramObj.dir)
             }
         );
 
