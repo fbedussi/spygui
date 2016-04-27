@@ -2,23 +2,6 @@ var path = require('path');
 var config = require('./config.js');
 var Nightwatch = require(path.join(config.startingFolder, '/node_modules/nightwatch/lib/index.js'));
 
-
-function stringDiff(str1, str2) {
-    var maxLenght = Math.max(str1.length, str2.length);
-    var i = 0;
-    var result = '';
-
-    for (; i < maxLenght; i++) {
-        if (str1[i] && str2[i] && str1[i] === str2[i]) {
-            result += str1[i];
-        } else if ((str1[i] || str2[i]) && result[result.length-1] !== '*' ) {
-            result += '*';
-        }
-    }
-
-    return result;
-}
-
 module.exports = function(paramObj) {
     try {
         var confObj = {
@@ -32,6 +15,10 @@ module.exports = function(paramObj) {
                 return path.relative(path.join(config.startingFolder, 'features'), excludeFullPath);
             }).join(',');
         }
+        if (paramObj.file) {
+            confObj['filter'] = path.basename(paramObj.file, '.feature') + '.*';
+        }
+
         console.log(confObj);
         Nightwatch.runner(confObj);
 

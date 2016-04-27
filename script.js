@@ -3,6 +3,7 @@
 var app = {};
 var form = document.getElementById('filesForm');
 var submitBtn = document.getElementById('submitBtn');
+var domReady = new Event('domReady');
 
 (function () {
     function init(url, callback) {
@@ -58,7 +59,8 @@ var submitBtn = document.getElementById('submitBtn');
             switch (obj[value].type) {
                 case 'file':
                     insertInput({
-                        type: 'checkbox',
+                        type: 'radio',
+                        name: 'selectFile',
                         value: value,
                         labelText: value,
                         className: 'line',
@@ -167,10 +169,8 @@ var submitBtn = document.getElementById('submitBtn');
                         objToSend.exclude.push(el.getAttribute('data-path'))
                         break;
                     default:
-                        objToSend[el.id] = {
-                            type: el.getAttribute('data-type'),
-                            path: el.getAttribute('data-path')
-                        };
+                        console.log(el.getAttribute('data-path'));
+                        objToSend.file = el.getAttribute('data-path')
                 }
             });
 
@@ -212,6 +212,60 @@ var submitBtn = document.getElementById('submitBtn');
 
 })();
 
+(function () {
+    function init() {
+        document.addEventListener('domReady', function() {
+            function getSiblingBtn(btn) {
+                return (function processNextSibling(el) {
+                    if (el !== btn && el.classList.contains('folderBtn')) {return el;}
+                    else {
+                        if (!el.nextElementSibling) {return null;} else {return processNextSibling(el.nextElementSibling);}
+                    }
+                })(btn.parentElement.firstElementChild);
+            }
+
+            [].forEach.call(document.querySelectorAll('.folderBtn'), function (btn) {
+                btn.addEventListener('click', function (e) {
+                    if (e.currentTarget.checked) {
+                        //Uncheck sibling button
+                        var siblingBtn = getSiblingBtn(e.currentTarget);
+                        if (siblingBtn && siblingBtn.checked) {
+                            siblingBtn.checked = false;
+                        }
+
+                        //Uncheck file selection
+                        if (e.currentTarget.dataset.type && e.currentTarget.dataset.type === 'dir') {
+                            let fileBtnChecked = document.querySelector('[data-type="file"]:checked');
+                            if (fileBtnChecked) {
+                                fileBtnChecked.checked = false;
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    }
+
+    return app.handleFolderClick = init;
+})();
+
+(function () {
+    function init() {
+        document.addEventListener('domReady', function() {
+
+            [].forEach.call(document.querySelectorAll('[name="selectFile"]'), function (btn) {
+                btn.addEventListener('click', function (e) {
+                    let dirBtnChecked = document.querySelector('[data-type="dir"]:checked');
+                    if (dirBtnChecked) {dirBtnChecked.checked = false;}
+                });
+            });
+        });
+    }
+
+    return app.handleFileClick = init;
+})();
+
+
 app.getRequest('http://localhost:3000/environments', function (responseObj) {
     var envObj = {};
     Object.keys(responseObj).forEach(function (key) {
@@ -222,8 +276,11 @@ app.getRequest('http://localhost:3000/environments', function (responseObj) {
 });
 app.getRequest('http://localhost:3000/features', function (responseObj) {
     app.insertLine(responseObj, document.getElementById('filesFormInner'));
+    document.dispatchEvent(domReady);
 });
 app.handleFormSubmit();
+app.handleFolderClick();
+app.handleFileClick();
 
 
 

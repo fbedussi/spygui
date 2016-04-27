@@ -34,6 +34,14 @@
     width: calc(100% - 2.2em);
 }
 
+[data-type="dir"]:checked ~ div [data-type="file"] + label {
+    color: green;
+}
+
+[data-type="file"]:checked + label {
+    color: green;
+}
+
 .testRunningMsg {
     text-align: center;
     color: green;
