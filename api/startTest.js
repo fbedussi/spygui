@@ -27,8 +27,11 @@ module.exports = function(paramObj) {
             confObj.skiptags = paramObj.tagsExcluded.join(',');
         }
 
-        //console.log(confObj);
-        Nightwatch.runner(confObj);
+        console.log(confObj);
+        Nightwatch.runner(confObj, function(data){
+            console.log('TEST END');
+            console.log(data);
+        });
 
         // var spawn = require('child_process').spawn;
         // var prc = spawn('nightwatch',  ['--env chrome', '--group Checkout/Guest']);

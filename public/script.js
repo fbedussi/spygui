@@ -317,8 +317,15 @@ var tags = [];
 
             [].forEach.call(document.querySelectorAll('[name="selectFile"]'), function (btn) {
                 btn.addEventListener('click', function (e) {
-                    let dirBtnChecked = document.querySelector('[data-type="dir"]:checked');
-                    if (dirBtnChecked) {dirBtnChecked.checked = false;}
+                    let parentFolderBtn = (function getParentFolderBtn(el) {
+                            if (el.dataset.type && el.dataset.type === 'dir') {
+                                return el
+                            } else {
+                                return getParentFolderBtn(el.nextElementSibling);
+                            }
+                    })(e.currentTarget.closest('fieldset').firstElementChild);
+                        
+                    if (!parentFolderBtn.checked) {parentFolderBtn.checked = true;}
                 });
             });
         });
