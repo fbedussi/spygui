@@ -327,6 +327,19 @@ var tags = [];
     return app.handleFileClick = init;
 })();
 
+(function () {
+    function init() {
+        document.getElementById('resetButton').addEventListener('click', function() {
+            var tagList = document.getElementById('tagsList');
+
+            [].forEach.call(document.querySelectorAll('.tagsDropAreaWrapper li'), function (tag) {
+                tagList.appendChild(tag);
+            });
+        });
+    }
+
+    return app.resetClick = init;
+})();
 
 app.getRequest('http://localhost:3000/environments', function (responseObj) {
     var envObj = {};
@@ -339,13 +352,17 @@ app.getRequest('http://localhost:3000/environments', function (responseObj) {
 app.getRequest('http://localhost:3000/features', function (responseObj) {
     app.insertLine(responseObj, document.getElementById('filesFormInner'));
     if (tags.length) {
-        app.manageTags(tags);
+        let uniqueTags = tags.sort().filter(function(item, pos, self) {
+            return self.indexOf(item) === pos;
+        });
+        app.manageTags(uniqueTags);
     }
     document.dispatchEvent(featureListReady);
 });
 app.handleFormSubmit();
 app.handleFolderClick();
 app.handleFileClick();
+app.resetClick();
 
 
 
