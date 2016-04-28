@@ -1,6 +1,10 @@
+'use strict';
+
 var fs = require('fs');
 var path = require('path');
 var config = require('./../config.js');
+var Gherkin = require('gherkin');
+var parser = new Gherkin.Parser();
 
 module.exports = function walk(dir, done) {
     var results = {};
@@ -26,10 +30,20 @@ module.exports = function walk(dir, done) {
                             if (!--pending) done(null, results);
                         });
                     } else {
+                        let tags = [];
+                        let data = fs.readFileSync(file, 'utf8')
+                        let gherkinDocument = parser.parse(data)
+                        
+                        gherkinDocument.feature.tags.forEach(function (tag) {
+                            tags.push(tag.name.substr(1));
+                        });
+
                         results[fileName] = {
                             type: 'file',
-                            path: file
+                            path: file,
+                            tags: tags
                         };
+                        
                         if (!--pending) done(null, results);
                     }
                 });

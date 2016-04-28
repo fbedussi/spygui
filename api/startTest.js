@@ -1,3 +1,5 @@
+'use strict';
+
 var path = require('path');
 var config = require('./../config.js');
 var Nightwatch = require(path.join(config.startingFolder, '/node_modules/nightwatch/lib/index.js'));

@@ -4,8 +4,7 @@ var app = {};
 var form = document.getElementById('filesForm');
 var submitBtn = document.getElementById('submitBtn');
 var featureListReady = new Event('featureListReady');
-var tagsIncluded = [];
-var tagsExcluded = [];
+var tags = [];
 
 (function () {
     function init(url, callback) {
@@ -40,7 +39,9 @@ var tagsExcluded = [];
             tagEl.id = tag;
             parent.appendChild(tagEl);
             tagEl.addEventListener('dragstart', function(e){
+                console.log('dragstart');
                 e.dataTransfer.setData("text/plain", e.target.id);
+                e.dataTransfer.dropEffect = "move";
                 e.dataTransfer.effectAllowed = "move";
             })
         });
@@ -61,6 +62,9 @@ var tagsExcluded = [];
                 e.target.querySelector('ul').appendChild(document.getElementById(data));
             }
         });
+
+        //Show container
+        //document.getElementById('tagsFormWrapper').style= '';
     }
 
     return app.manageTags = init;
@@ -96,11 +100,17 @@ var tagsExcluded = [];
         for (value in obj) {
             switch (obj[value].type) {
                 case 'file':
+                    let localTags = obj[value].tags;
+                    let localTagsLabel = '';
+                    if (localTags && localTags.length) {
+                        tags = tags.concat(localTags);
+                        localTagsLabel = ' (TAG: ' + localTags.join(', ') + ')';
+                    }
                     insertInput({
                         type: 'radio',
                         name: 'selectFile',
                         value: value,
-                        labelText: value,
+                        labelText: value + localTagsLabel,
                         className: 'line',
                         dataType: 'file',
                         id: value,
@@ -119,7 +129,7 @@ var tagsExcluded = [];
                         parent: parent
                     });
                     break;
-                default:
+                default: //directories
                     var fieldset = document.createElement('fieldset');
                     var legend = document.createElement('legend');
                     var text = document.createTextNode(value);
@@ -326,12 +336,11 @@ app.getRequest('http://localhost:3000/environments', function (responseObj) {
     });
     app.insertLine(envObj, document.getElementById('environmentsFormInner'));
 });
-app.getRequest('http://localhost:3000/tags', function (responseObj) {
-    //console.log(responseObj);
-    app.manageTags(responseObj);
-});
 app.getRequest('http://localhost:3000/features', function (responseObj) {
     app.insertLine(responseObj, document.getElementById('filesFormInner'));
+    if (tags.length) {
+        app.manageTags(tags);
+    }
     document.dispatchEvent(featureListReady);
 });
 app.handleFormSubmit();
