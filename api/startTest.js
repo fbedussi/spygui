@@ -2,9 +2,15 @@
 
 var path = require('path');
 var config = require('./../config.js');
-var Nightwatch = require(path.join(config.startingFolder, '/node_modules/nightwatch/lib/index.js'));
+var spawn = require('cross-spawn');
+//var spawn = require('better-spawn');
+//var spawn = require('child_process').spawn;
+//var Nightwatch = require(path.join(config.startingFolder, '/node_modules/nightwatch/lib/index.js'));
+//var nightwatchConf = require(path.join(config.startingFolder, 'nightwatch.conf.js'));
 
 module.exports = function(paramObj) {
+    //var nightwatch = new Nightwatch();
+    
     try {
         var confObj = {
             env: paramObj.environments.join(',')
@@ -26,27 +32,38 @@ module.exports = function(paramObj) {
         if (paramObj.tagsExcluded) {
             confObj.skiptags = paramObj.tagsExcluded.join(',');
         }
+        //console.log(nightwatchConf);
+        //confObj.test_settings = nightwatchConf.test_settings;
+        //console.log(confObj);
+        // Nightwatch.runner(confObj, function(data){
+        //     console.log('TEST END');
+        //     console.log(data);
+        // });
+        //
+        
+        var command = 'nightwatch';
+        var args = [];
 
-        console.log(confObj);
-        Nightwatch.runner(confObj, function(data){
-            console.log('TEST END');
-            console.log(data);
+        Object.keys(confObj).forEach(function(key) {
+            if (confObj[key]) {
+                args.push('--' + key);
+                args.push(confObj[key]);
+            }
         });
 
-        // var spawn = require('child_process').spawn;
-        // var prc = spawn('nightwatch',  ['--env chrome', '--group Checkout/Guest']);
-        //
-        // //noinspection JSUnresolvedFunction
-        // prc.stdout.setEncoding('utf8');
-        // prc.stdout.on('data', function (data) {
-        //     var str = data.toString()
-        //     var lines = str.split(/(\r?\n)/g);
-        //     console.log(lines.join(""));
-        // });
-        //
-        // prc.on('close', function (code) {
-        //     console.log('process exit code ' + code);
-        // });
+        console.log('I\'m running nightwatch with the following command: ', command + ' ' + args.join(' '));
+        // const exec = require('child_process').exec;
+        // const child = exec(command + ' ' + args.join(' '),
+        //     (error, stdout, stderr) => {
+        //         console.log(`stdout: ${stdout}`);
+        //         console.log(`stderr: ${stderr}`);
+        //         if (error !== null) {
+        //             console.log(`exec error: ${error}`);
+        //         }
+        //     });
+
+        var child = spawn(command, args, { stdio: 'inherit' });
+
 
     } catch (ex) {
         console.log('ERROR: There was an error while starting the test runner:\n\n');

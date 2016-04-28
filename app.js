@@ -3,7 +3,7 @@ var bodyParser = require("body-parser");
 var app = express();
 var open = require('open');
 
-module.exports = function () {
+module.exports = (function () {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: true}));
 
@@ -19,4 +19,4 @@ module.exports = function () {
             console.log('The user closed the browser');
         }
     });
-};
+})();
