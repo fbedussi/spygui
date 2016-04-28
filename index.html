@@ -10,6 +10,23 @@
     <form id="filesForm" action="http://localhost:3000/launchspy">
         <h1>Select browser</h1>
         <div id="environmentsFormInner"></div>
+        <h1>Select tag</h1>
+        <div id="tagsFormInner">
+            <div class="tagsDropArea">
+                <h2>Tags list</h2>
+                <ul id="tagsList"></ul>
+            </div>
+            <div class="tagsDropAreaWrapper">
+                <div id="tagsIncluded" class="tagsDropArea">
+                    <h2>Tags included</h2>
+                    <ul></ul>
+                </div>
+                <div id="tagsExcluded" class="tagsDropArea">
+                    <h2>Tags excluded</h2>
+                    <ul></ul>
+                </div>
+            </div>
+        </div>
         <h1>Select features</h1>
         <div id="filesFormInner">
             <input id="selectAll" checked="checked" type="radio" name="selectFolder" class="folderBtn" data-path="all" data-type="dir">

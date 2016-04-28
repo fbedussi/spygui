@@ -18,6 +18,12 @@ module.exports = function(paramObj) {
         if (paramObj.file) {
             confObj['filter'] = path.basename(paramObj.file, '.feature') + '.*';
         }
+        if (paramObj.tagsIncluded) {
+            confObj.tag = paramObj.tagsIncluded.join(',');
+        }
+        if (paramObj.tagsExcluded) {
+            confObj.skiptags = paramObj.tagsExcluded.join(',');
+        }
 
         console.log(confObj);
         Nightwatch.runner(confObj);

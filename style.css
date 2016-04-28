@@ -13,6 +13,25 @@
     color: white;
 }
 
+.tagsDropArea {
+    margin: 0 2.5% 1em;
+    min-height: 8em;
+    border: solid 1px black;
+    background: lightgrey;
+}
+
+.tagsDropArea h2 {
+    margin: 2%;
+}
+
+.tagsDropAreaWrapper {
+    display: flex;
+}
+
+.tagsDropAreaWrapper .tagsDropArea{
+    width: 45%;
+}
+
 .closeBtn:not(:checked) + label .openTxt {
     display: none;    
 }

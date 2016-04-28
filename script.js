@@ -3,7 +3,9 @@
 var app = {};
 var form = document.getElementById('filesForm');
 var submitBtn = document.getElementById('submitBtn');
-var domReady = new Event('domReady');
+var featureListReady = new Event('featureListReady');
+var tagsIncluded = [];
+var tagsExcluded = [];
 
 (function () {
     function init(url, callback) {
@@ -26,6 +28,42 @@ var domReady = new Event('domReady');
     }
 
     return app.getRequest = init;
+})();
+
+(function () {
+    function insertTags(tagsArr, parent) {
+        tagsArr.forEach(function(tag){
+            var tagEl = document.createElement('li');
+            var tagText = document.createTextNode(tag);
+            tagEl.appendChild(tagText);
+            tagEl.setAttribute('draggable', true);
+            tagEl.id = tag;
+            parent.appendChild(tagEl);
+            tagEl.addEventListener('dragstart', function(e){
+                e.dataTransfer.setData("text/plain", e.target.id);
+                e.dataTransfer.effectAllowed = "move";
+            })
+        });
+    }
+
+    function init(tagsArr) {
+        insertTags(tagsArr, document.getElementById('tagsList'));
+        document.addEventListener('dragover', function(e){
+            e.preventDefault();
+        });
+        document.addEventListener('dragenter', function(e){
+            e.preventDefault();
+        });
+        document.addEventListener('drop', function(e){
+            e.preventDefault();
+            if (e.target.classList.contains('tagsDropArea')) {
+                var data = e.dataTransfer.getData("text");
+                e.target.querySelector('ul').appendChild(document.getElementById(data));
+            }
+        });
+    }
+
+    return app.manageTags = init;
 })();
 
 (function () {
@@ -146,6 +184,8 @@ var domReady = new Event('domReady');
             environments: [],
             dir: ''
         };
+        var tagsIncluded = document.querySelectorAll('#tagsIncluded li');
+        var tagsExcluded = document.querySelectorAll('#tagsExcluded li');
 
 
         [].filter.call(form.querySelectorAll('.line, .folderBtn'), function (el) {
@@ -173,6 +213,19 @@ var domReady = new Event('domReady');
                         objToSend.file = el.getAttribute('data-path')
                 }
             });
+
+
+        if (tagsIncluded.length) {
+            objToSend.tagsIncluded = [].map.call(tagsIncluded, function(tagEl) {
+                return tagEl.id;
+            });
+        }
+
+        if (tagsExcluded.length) {
+            objToSend.tagsExcluded = [].map.call(tagsExcluded, function(tagEl) {
+                return tagEl.id;
+            });
+        }
 
         xhr.open('POST', url);
         xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
@@ -214,7 +267,7 @@ var domReady = new Event('domReady');
 
 (function () {
     function init() {
-        document.addEventListener('domReady', function() {
+        document.addEventListener('featureListReady', function() {
             function getSiblingBtn(btn) {
                 return (function processNextSibling(el) {
                     if (el !== btn && el.classList.contains('folderBtn')) {return el;}
@@ -251,7 +304,7 @@ var domReady = new Event('domReady');
 
 (function () {
     function init() {
-        document.addEventListener('domReady', function() {
+        document.addEventListener('featureListReady', function() {
 
             [].forEach.call(document.querySelectorAll('[name="selectFile"]'), function (btn) {
                 btn.addEventListener('click', function (e) {
@@ -274,9 +327,13 @@ app.getRequest('http://localhost:3000/environments', function (responseObj) {
     });
     app.insertLine(envObj, document.getElementById('environmentsFormInner'));
 });
+app.getRequest('http://localhost:3000/tags', function (responseObj) {
+    console.log(responseObj);
+    app.manageTags(responseObj);
+});
 app.getRequest('http://localhost:3000/features', function (responseObj) {
     app.insertLine(responseObj, document.getElementById('filesFormInner'));
-    document.dispatchEvent(domReady);
+    document.dispatchEvent(featureListReady);
 });
 app.handleFormSubmit();
 app.handleFolderClick();
