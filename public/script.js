@@ -209,7 +209,6 @@ var tagsExcluded = [];
                         objToSend.exclude.push(el.getAttribute('data-path'))
                         break;
                     default:
-                        console.log(el.getAttribute('data-path'));
                         objToSend.file = el.getAttribute('data-path')
                 }
             });
@@ -328,7 +327,7 @@ app.getRequest('http://localhost:3000/environments', function (responseObj) {
     app.insertLine(envObj, document.getElementById('environmentsFormInner'));
 });
 app.getRequest('http://localhost:3000/tags', function (responseObj) {
-    console.log(responseObj);
+    //console.log(responseObj);
     app.manageTags(responseObj);
 });
 app.getRequest('http://localhost:3000/features', function (responseObj) {

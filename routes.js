@@ -1,14 +1,14 @@
 var express = require('express');
 var path = require('path');
-var getEnvironments = require('./getEnvironments.js');
-var getTags = require('./getTags.js');
-var getDir = require('./getDir.js');
-var startTest = require('./startTest');
+var getEnvironments = require('./api/getEnvironments.js');
+var getTags = require('./api/getTags.js');
+var getDir = require('./api/getDir.js');
+var startTest = require('./api/startTest');
 var config = require('./config.js');
 
 module.exports = function(app) {
 
-    app.use('/', express.static(__dirname));
+    app.use('/', express.static(path.join(__dirname, 'public')));
 
     app.get('/environments', function(req, res) {
         getEnvironments(config.startingFolder, function(err, data) {
@@ -17,7 +17,6 @@ module.exports = function(app) {
     });
 
     app.get('/tags', function(req, res) {
-        console.log('router tag')
         getTags(function(err, data) {
             res.send(data);
         });
@@ -30,7 +29,6 @@ module.exports = function(app) {
     });
     
     app.post('/launchspy', function(req, res) {
-        console.log(req.body);
         res.end();
         startTest(req.body);
     });

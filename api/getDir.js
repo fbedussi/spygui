@@ -1,6 +1,6 @@
 var fs = require('fs');
 var path = require('path');
-var config = require('./config.js');
+var config = require('./../config.js');
 
 module.exports = function walk(dir, done) {
     var results = {};

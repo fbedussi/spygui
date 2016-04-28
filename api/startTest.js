@@ -1,5 +1,5 @@
 var path = require('path');
-var config = require('./config.js');
+var config = require('./../config.js');
 var Nightwatch = require(path.join(config.startingFolder, '/node_modules/nightwatch/lib/index.js'));
 
 module.exports = function(paramObj) {
@@ -25,7 +25,7 @@ module.exports = function(paramObj) {
             confObj.skiptags = paramObj.tagsExcluded.join(',');
         }
 
-        console.log(confObj);
+        //console.log(confObj);
         Nightwatch.runner(confObj);
 
         // var spawn = require('child_process').spawn;

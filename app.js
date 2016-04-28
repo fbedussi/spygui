@@ -13,8 +13,10 @@ module.exports = function () {
         console.log("Listening on port %s...", server.address().port);
     });
 
-    open('http://localhost:3000', function (err) {
-        if (err) throw err;
-        console.log('The user closed the browser');
+    open('http://localhost:' + server.address().port, function (err) {
+        if (err) {
+            throw err;
+            console.log('The user closed the browser');
+        }
     });
 };
