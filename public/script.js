@@ -49,10 +49,56 @@
                 })
             });
         }
+        
+        function arrayIntersect(arr1, arr2) {
+            var arrays = [arr1, arr2];
+
+            return arrays.sort().shift().filter(function(v) {
+                return arrays.every(function(a) {
+                    return a.indexOf(v) !== -1;
+                });
+            });
+        }
+        
+        function printFeature(featureArray, parent) {
+            parent.innerHTML = '';
+
+            featureArray.forEach(function(feature) {
+                var featureEl = document.createElement('li');
+                var featureTxt = document.createTextNode(feature);
+                featureEl.appendChild(featureTxt);
+                parent.appendChild(featureEl);
+            })
+        }
 
         function updateSelectedFeatures() {
-            //var selectedTag =
+            var includedTag = app.getTags().included;
+            var excludedTag = app.getTags().excluded;
+            var includedFeature = [];
+            var excludedFeature = [];
 
+            (function parseFeature(featuresObj) {
+                Object.keys(featuresObj).forEach(function(key){
+                   if (featuresObj[key].type === 'file' && featuresObj[key].tags) {
+                       if (arrayIntersect(featuresObj[key].tags, includedTag).length) {
+                           includedFeature.push(featuresObj[key].path.replace(/^.*features/,''));
+                       }
+                       if (arrayIntersect(featuresObj[key].tags, excludedTag).length) {
+                           excludedFeature.push(featuresObj[key].path.replace(/^.*features/,''));
+                       }
+                       return;
+                   } else {
+                       if (!featuresObj[key].subDir) {
+                           return;
+                       } else {
+                           return parseFeature(featuresObj[key].subDir)
+                       }
+                   }
+                });
+            })(featuresObj);
+            
+            printFeature(includedFeature, document.getElementById('includedFeatures'));
+            printFeature(excludedFeature, document.getElementById('excludeddFeatures'));
         }
 
         function init(tagsArr) {

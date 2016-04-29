@@ -7,41 +7,59 @@
 </head>
 
 <body>
-    <form id="filesForm" action="http://localhost:3000/launchspy">
+<form id="filesForm" action="http://localhost:3000/launchspy">
+    <div class="section">
         <h1>Select browser</h1>
+        <input id="env_close" type="checkbox" class="closeBtn">
+        <label for="env_close" class="closeSection"><span><span class="openTxt">open</span><span class="closeTxt">close</span></span></label>
         <div id="environmentsFormInner"></div>
-        <div id="tagsFormWrapper" style="display: none">
-            <h1>Select tag</h1>
-            <div id="tagsFormInner">
-                <div class="tagsDropArea">
-                    <h2>Tags list</h2>
-                    <ul id="tagsList"></ul>
+    </div>
+    <div id="tagsFormWrapper" style="display: none" class="section">
+        <h1>Select tag</h1>
+        <input id="tag_close" type="checkbox" class="closeBtn">
+        <label for="tag_close" class="closeSection"><span><span class="openTxt">open</span><span class="closeTxt">close</span></span></label>
+        <div id="tagsFormInner">
+            <div class="tagsDropArea row">
+                <h2>Tags list</h2>
+                <ul id="tagsList"></ul>
+            </div>
+            <div class="tagsDropAreaWrapper row">
+                <div id="tagsIncluded" class="tagsDropArea halfCol">
+                    <h2>Tags included</h2>
+                    <ul></ul>
                 </div>
-                <div class="tagsDropAreaWrapper">
-                    <div id="tagsIncluded" class="tagsDropArea">
-                        <h2>Tags included</h2>
-                        <ul></ul>
-                    </div>
-                    <div id="tagsExcluded" class="tagsDropArea">
-                        <h2>Tags excluded</h2>
-                        <ul></ul>
-                    </div>
-                </div>
-                <div id="featuresSelected">
+                <div id="tagsExcluded" class="tagsDropArea halfCol">
+                    <h2>Tags excluded</h2>
                     <ul></ul>
                 </div>
             </div>
+            <div id="featuresSelected" class="row">
+                <div class="halfCol">
+                    <h2>Features included</h2>
+                    <ul id="includedFeatures"></ul>
+                </div>
+                <div class="halfCol">
+                    <h2>Features excluded</h2>
+                    <ul id="excludeddFeatures"></ul>
+                </div>
+            </div>
         </div>
+    </div>
+    <div class="section">
         <h1>Select features</h1>
+        <input id="feature_close" type="checkbox" class="closeBtn">
+        <label for="feature_close" class="closeSection"><span><span class="openTxt">open</span><span class="closeTxt">close</span></span></label>
         <div id="filesFormInner">
-            <input id="selectAll" checked="checked" type="radio" name="selectFolder" class="folderBtn" data-path="all" data-type="dir">
+            <input id="selectAll" checked="checked" type="radio" name="selectFolder" class="folderBtn" data-path="all"
+                   data-type="dir">
             <label for="selectAll">select all</label>
         </div>
-        <button type="submit" id="submitBtn" >run test</button>
-        <button type="reset" id="resetButton">reset</button>
-    </form>
-    <div id="testRunningMsg" class="testRunningMsg" style="display: none">The test is running</div>
+    </div>
+    <button type="submit" id="submitBtn">run test</button>
+    <button type="reset" id="resetButton">reset</button>
+</form>
+<div id="testRunningMsg" class="testRunningMsg" style="display: none">The test is running</div>
 
-    <script type="text/javascript" src="script.js"></script>
+<script type="text/javascript" src="script.js"></script>
 </body>
 </html>

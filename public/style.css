@@ -13,8 +13,35 @@
     color: white;
 }
 
+.row {
+    display: flex;
+    margin-bottom: 1em;
+}
+
+.halfCol {
+    width: calc(50% - 0.5em);
+}
+
+.halfCol:first-child {
+    margin-right: 0.5em;
+}
+
+.halfCol:last-child {
+    margin-left: 0.5em;
+}
+
+.section {
+    position: relative;
+    margin-bottom: 1em;
+}
+
+.closeSection {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 .tagsDropArea {
-    margin: 0 2.5% 1em;
     min-height: 8em;
     border: solid 1px black;
     background: lightgrey;
@@ -22,14 +49,6 @@
 
 .tagsDropArea h2 {
     margin: 2%;
-}
-
-.tagsDropAreaWrapper {
-    display: flex;
-}
-
-.tagsDropAreaWrapper .tagsDropArea{
-    width: 45%;
 }
 
 .closeBtn:not(:checked) + label .openTxt {
