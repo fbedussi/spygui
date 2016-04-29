@@ -133,21 +133,21 @@ label[for="selectAll"] {
 }
 
 .line {
-    width: 2em;
+    width: 30px;
 }
 
 .line + label {
     display: inline-block;
-    width: calc(100% - 2.2em);
+    width: calc(100% - 40px);
 }
 
-[data-type="dir"]:checked ~ div [data-type="file"] + label {
-    color: green;
-}
+/*[data-type="dir"]:checked ~ div [data-type="file"] + label {*/
+    /*color: green;*/
+/*}*/
 
-[data-type="file"]:checked + label {
-    color: green;
-}
+/*[data-type="file"]:checked + label {*/
+    /*color: green;*/
+/*}*/
 
 .testRunningMsg {
     text-align: center;
