@@ -62,7 +62,7 @@ module.exports = function(paramObj) {
         //         }
         //     });
 
-        var child = spawn(command, args, { stdio: 'inherit' });
+        var child = spawn(command, args, { stdio: 'inherit', detached: false });
 
 
     } catch (ex) {
