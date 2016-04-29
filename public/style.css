@@ -1,16 +1,42 @@
+body {
+    font-family: sans-serif;
+    font-size: 85%;
+}
+
 [class$="Btn"] {
     display: none;
 }
 
-[class$="Btn"] + label {
+button {
+    background: white;
+}
+
+.button, button {
     padding: 10px 20px;
     border: solid 1px black;
     display: inline-block;
+    margin-right: 1em;
+    font-size: 100%;
+    cursor: pointer;
 }
 
-[class$="Btn"]:checked + label {
+[class$="Btn"] + label:hover, button:hover {
+    background: lightgrey;
+}
+
+[class$="Btn"]:checked + label, button:active  {
     background: black;
     color: white;
+}
+
+fieldset [data-type="dir"] + label {
+    margin-right: 0;
+    border-right: none;
+}
+
+#environmentsFormInner label {
+    width: auto;
+    margin-right: 2em;
 }
 
 .row {
@@ -18,8 +44,34 @@
     margin-bottom: 1em;
 }
 
+.tagListWrapper {
+    display: block;
+}
+
+.tagList {
+    padding-left: 0;
+}
+
+.tag {
+    display: inline-block;
+    margin-right: 1em;
+    padding: 0.5em;
+    border: solid 1px black;
+    cursor: pointer;
+}
+
+.featureList {
+    padding-left: 1.5em;
+}
+
+.fullCol {
+    padding: 0.5em;
+}
+
 .halfCol {
     width: calc(50% - 0.5em);
+    border: solid 1px black;
+    padding: 0.5em;
 }
 
 .halfCol:first-child {
@@ -28,6 +80,14 @@
 
 .halfCol:last-child {
     margin-left: 0.5em;
+}
+
+.row h2 {
+    margin: 0;
+}
+
+.halfCol ul li {
+    word-break: break-all;
 }
 
 .section {
@@ -39,16 +99,12 @@
     position: absolute;
     top: 0;
     right: 0;
+    margin-right: 0;
 }
 
 .tagsDropArea {
-    min-height: 8em;
-    border: solid 1px black;
     background: lightgrey;
-}
-
-.tagsDropArea h2 {
-    margin: 2%;
+    border: solid 1px black;
 }
 
 .closeBtn:not(:checked) + label .openTxt {
@@ -61,6 +117,19 @@
 
 .closeBtn:checked + label ~ div {
     display: none;    
+}
+
+label[for="selectAll"] {
+    margin-bottom: 1em;
+}
+
+.folderWrapper {
+    margin: 0 0 1em 0;
+    border: solid 1px black;
+}
+
+.featureFiles {
+    margin-top: 1em;
 }
 
 .line {

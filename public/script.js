@@ -4,6 +4,8 @@
     var app = {};
     var form = document.getElementById('filesForm');
     var submitBtn = document.getElementById('submitBtn');
+    var includedFeaturesWrapper = document.getElementById('includedFeatures');
+    var excludedFeaturesWrapper = document.getElementById('excludeddFeatures');
     var featureListReady = new Event('featureListReady');
     var tags = [];
     var featuresObj = {};
@@ -31,35 +33,7 @@
         return app.getRequest = init;
     })();
 
-    (function () {
-
-        function insertTags(tagsArr, parent) {
-            tagsArr.forEach(function (tag) {
-                var tagEl = document.createElement('li');
-                var tagText = document.createTextNode(tag);
-                tagEl.appendChild(tagText);
-                tagEl.setAttribute('draggable', true);
-                tagEl.id = tag;
-                parent.appendChild(tagEl);
-                tagEl.addEventListener('dragstart', function (e) {
-                    console.log('dragstart');
-                    e.dataTransfer.setData("text/plain", e.target.id);
-                    e.dataTransfer.dropEffect = "move";
-                    e.dataTransfer.effectAllowed = "move";
-                })
-            });
-        }
-        
-        function arrayIntersect(arr1, arr2) {
-            var arrays = [arr1, arr2];
-
-            return arrays.sort().shift().filter(function(v) {
-                return arrays.every(function(a) {
-                    return a.indexOf(v) !== -1;
-                });
-            });
-        }
-        
+    (function() {
         function printFeature(featureArray, parent) {
             parent.innerHTML = '';
 
@@ -70,6 +44,40 @@
                 parent.appendChild(featureEl);
             })
         }
+
+        app.printFeature = printFeature;
+    })();
+    (function () {
+
+        function insertTags(tagsArr, parent) {
+            tagsArr.forEach(function (tag) {
+                var tagEl = document.createElement('li');
+                var tagText = document.createTextNode(tag);
+                tagEl.appendChild(tagText);
+                tagEl.setAttribute('draggable', true);
+                tagEl.id = tag;
+                tagEl.className = 'tag';
+                parent.appendChild(tagEl);
+                tagEl.addEventListener('dragstart', function (e) {
+                    console.log('dragstart');
+                    e.dataTransfer.setData("text/plain", e.target.id);
+                    e.dataTransfer.dropEffect = "move";
+                    e.dataTransfer.effectAllowed = "move";
+                })
+            });
+        }
+
+        function arrayIntersect(arr1, arr2) {
+            var arrays = [arr1, arr2];
+
+            return arrays.sort().shift().filter(function(v) {
+                return arrays.every(function(a) {
+                    return a.indexOf(v) !== -1;
+                });
+            });
+        }
+
+
 
         function updateSelectedFeatures() {
             var includedTag = app.getTags().included;
@@ -96,9 +104,9 @@
                    }
                 });
             })(featuresObj);
-            
-            printFeature(includedFeature, document.getElementById('includedFeatures'));
-            printFeature(excludedFeature, document.getElementById('excludeddFeatures'));
+
+            app.printFeature(includedFeature, includedFeaturesWrapper);
+            app.printFeature(excludedFeature, excludedFeaturesWrapper);
         }
 
         function init(tagsArr) {
@@ -111,9 +119,10 @@
             });
             document.addEventListener('drop', function (e) {
                 e.preventDefault();
-                if (e.target.classList.contains('tagsDropArea')) {
+                if (e.target.classList.contains('tagsDropArea') || e.target.parentNode.classList.contains('tagsDropArea')) {
                     var data = e.dataTransfer.getData("text");
-                    e.target.querySelector('ul').appendChild(document.getElementById(data));
+                    var el = (e.target.classList.contains('tagsDropArea'))? e.target : e.target.parentNode;
+                    el.querySelector('ul').appendChild(document.getElementById(data));
                     updateSelectedFeatures();
                 }
             });
@@ -151,6 +160,9 @@
                     cb.setAttribute('data-type', attrObj.dataType);
                 }
                 label.setAttribute('for', attrObj.id);
+                if (attrObj.labelClass) {
+                    label.className = attrObj.labelClass;
+                }
                 label.appendChild(text);
                 attrObj.parent.appendChild(cb);
                 attrObj.parent.appendChild(label);
@@ -198,6 +210,8 @@
                         var openCloseContainer = document.createElement('span');
                         var openText = document.createTextNode('open');
                         var closeText = document.createTextNode('close');
+                        fieldset.className = 'folderWrapper';
+                        div.setAttribute('class', 'featureFiles');
                         openContainer.appendChild(openText);
                         openContainer.setAttribute('class', 'openTxt');
                         closeContainer.appendChild(closeText);
@@ -212,6 +226,7 @@
                             value: value,
                             labelText: openCloseContainer,
                             className: 'closeBtn',
+                            labelClass: 'button',
                             dataType: 'close',
                             id: value + '_close',
                             checked: true,
@@ -223,6 +238,7 @@
                             value: value,
                             labelText: 'select folder',
                             className: 'folderBtn',
+                            labelClass: 'button',
                             dataType: 'dir',
                             id: value + '_entire',
                             parent: fieldset
@@ -232,6 +248,7 @@
                             value: value,
                             labelText: 'exclude folder',
                             className: 'folderBtn',
+                            labelClass: 'button',
                             dataType: 'exclude',
                             id: value + '_entireExclude',
                             parent: fieldset
@@ -261,7 +278,6 @@
         }
 
         return app.getTags = init;
-
     })();
 
     (function () {
@@ -272,7 +288,8 @@
                 environments: [],
                 dir: ''
             };
-
+            var tagsIncluded = app.getTags().included;
+            var tagsExcluded = app.getTags().excluded;
 
 
             [].filter.call(form.querySelectorAll('.line, .folderBtn'), function (el) {
@@ -300,13 +317,12 @@
                     }
                 });
 
-
             if (tagsIncluded.length) {
-                objToSend.tagsIncluded = app.getTags().included;
+                objToSend.tagsIncluded = tagsIncluded;
             }
 
             if (tagsExcluded.length) {
-                objToSend.tagsExcluded = app.getTags().excluded;
+                objToSend.tagsExcluded = tagsExcluded;
             }
 
             xhr.open('POST', url);
@@ -369,13 +385,14 @@
                     btn.addEventListener('click', function (e) {
                         if (e.currentTarget.checked) {
                             //Uncheck sibling button
-                            var siblingBtn = getSiblingBtn(e.currentTarget);
+                            let siblingBtn = getSiblingBtn(e.currentTarget);
                             if (siblingBtn && siblingBtn.checked) {
                                 siblingBtn.checked = false;
                             }
 
                             //Uncheck file selection
-                            if (e.currentTarget.dataset.type && e.currentTarget.dataset.type === 'dir') {
+                            let elType = e.currentTarget.dataset.type;
+                            if (elType && (elType === 'dir' || elType === 'exclude')) {
                                 let fileBtnChecked = document.querySelector('[data-type="file"]:checked');
                                 if (fileBtnChecked) {
                                     fileBtnChecked.checked = false;
@@ -390,22 +407,33 @@
         return app.handleFolderClick = init;
     })();
 
+    (function() {
+        function getParentFolderBtn(el, elType) {
+            if (el.dataset.type && el.dataset.type === elType) {
+                return el
+            } else {
+                return getParentFolderBtn(el.nextElementSibling, elType);
+            }
+        };
+
+        return app.getParentFolderBtn = getParentFolderBtn;
+    })();
+
     (function () {
         function init() {
             document.addEventListener('featureListReady', function () {
 
                 [].forEach.call(document.querySelectorAll('[name="selectFile"]'), function (btn) {
                     btn.addEventListener('click', function (e) {
-                        let parentFolderBtn = (function getParentFolderBtn(el) {
-                            if (el.dataset.type && el.dataset.type === 'dir') {
-                                return el
-                            } else {
-                                return getParentFolderBtn(el.nextElementSibling);
-                            }
-                        })(e.currentTarget.closest('fieldset').firstElementChild);
+                        let parentFolderBtn = app.getParentFolderBtn(e.currentTarget.closest('fieldset').firstElementChild, 'dir');
+                        let parentExcludeFolderBtn = app.getParentFolderBtn(e.currentTarget.closest('fieldset').firstElementChild, 'exclude');
 
                         if (!parentFolderBtn.checked) {
                             parentFolderBtn.checked = true;
+                        }
+
+                        if (parentExcludeFolderBtn.checked) {
+                            parentExcludeFolderBtn.checked = false;
                         }
                     });
                 });
@@ -423,6 +451,9 @@
                 [].forEach.call(document.querySelectorAll('.tagsDropAreaWrapper li'), function (tag) {
                     tagList.appendChild(tag);
                 });
+
+                app.printFeature([], includedFeaturesWrapper);
+                app.printFeature([], excludedFeaturesWrapper);
             });
         }
 
