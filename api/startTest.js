@@ -3,15 +3,12 @@
 var path = require('path');
 var config = require('./../config.js');
 var spawn = require('cross-spawn');
-//var spawn = require('better-spawn');
-//var spawn = require('child_process').spawn;
-//var Nightwatch = require(path.join(config.startingFolder, '/node_modules/nightwatch/lib/index.js'));
-//var nightwatchConf = require(path.join(config.startingFolder, 'nightwatch.conf.js'));
 
 module.exports = function(paramObj) {
     //var nightwatch = new Nightwatch();
     
     try {
+        //console.log(paramObj);
         var confObj = {
             env: paramObj.environments.join(',')
         }
@@ -32,15 +29,8 @@ module.exports = function(paramObj) {
         if (paramObj.tagsExcluded) {
             confObj.skiptags = paramObj.tagsExcluded.join(',');
         }
-        //console.log(nightwatchConf);
-        //confObj.test_settings = nightwatchConf.test_settings;
-        //console.log(confObj);
-        // Nightwatch.runner(confObj, function(data){
-        //     console.log('TEST END');
-        //     console.log(data);
-        // });
-        //
-        
+        console.log(confObj);
+
         var command = 'nightwatch';
         var args = [];
 
@@ -52,19 +42,8 @@ module.exports = function(paramObj) {
         });
 
         console.log('I\'m running nightwatch with the following command: ', command + ' ' + args.join(' '));
-        // const exec = require('child_process').exec;
-        // const child = exec(command + ' ' + args.join(' '),
-        //     (error, stdout, stderr) => {
-        //         console.log(`stdout: ${stdout}`);
-        //         console.log(`stderr: ${stderr}`);
-        //         if (error !== null) {
-        //             console.log(`exec error: ${error}`);
-        //         }
-        //     });
 
         var child = spawn(command, args, { stdio: 'inherit', detached: false });
-
-
     } catch (ex) {
         console.log('ERROR: There was an error while starting the test runner:\n\n');
         process.stderr.write(ex.stack + '\n');
