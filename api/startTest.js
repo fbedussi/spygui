@@ -5,8 +5,6 @@ var config = require('./../config.js');
 var spawn = require('cross-spawn');
 
 module.exports = function(paramObj) {
-    //var nightwatch = new Nightwatch();
-    
     try {
         //console.log(paramObj);
         var confObj = {
