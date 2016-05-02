@@ -7,6 +7,7 @@
     var submitBtn = document.getElementById('submitBtn');
     var includedFeaturesWrapper = document.getElementById('includedFeatures');
     var excludedFeaturesWrapper = document.getElementById('excludeddFeatures');
+    var featuresToRunContainer = document.getElementById('featuresToRun');
     var featureListReady = new Event('featureListReady');
     var tags = [];
     var featuresObj = {};
@@ -65,6 +66,27 @@
 
     (function () {
         /**
+         * @description returns the element that 2 arrays have in common
+         * @param {array} arr1
+         * @param {array} arr2
+         * @returns {array}
+         * @alias app.arrayIntersect
+         */
+        function arrayIntersect(arr1, arr2) {
+            var arrays = [arr1, arr2];
+
+            return arrays.sort().shift().filter(function(v) {
+                return arrays.every(function(a) {
+                    return a.indexOf(v) !== -1;
+                });
+            });
+        }
+
+        return app.arrayIntersect = arrayIntersect;
+    })();
+
+    (function () {
+        /**
          * @description create a li element for every tag, initialise the drad&drop behaviour and appends it to the parent
          * @param {array} tagsArr
          * @param {element} parent
@@ -88,22 +110,6 @@
         }
 
         /**
-         * @description returns the element that 2 arrays have in common
-         * @param {array} arr1
-         * @param {array} arr2
-         * @returns {array}
-         */
-        function arrayIntersect(arr1, arr2) {
-            var arrays = [arr1, arr2];
-
-            return arrays.sort().shift().filter(function(v) {
-                return arrays.every(function(a) {
-                    return a.indexOf(v) !== -1;
-                });
-            });
-        }
-
-        /**
          * @description update the lists of included/excluded feature after every tag drop
          */
         function updateSelectedFeatures() {
@@ -115,10 +121,10 @@
             (function parseFeature(featuresObj) {
                 Object.keys(featuresObj).forEach(function(key){
                    if (featuresObj[key].type === 'file' && featuresObj[key].tags) {
-                       if (arrayIntersect(featuresObj[key].tags, includedTag).length) {
+                       if (app.arrayIntersect(featuresObj[key].tags, includedTag).length) {
                            includedFeature.push(featuresObj[key].path.replace(/^.*features/,''));
                        }
-                       if (arrayIntersect(featuresObj[key].tags, excludedTag).length) {
+                       if (app.arrayIntersect(featuresObj[key].tags, excludedTag).length) {
                            excludedFeature.push(featuresObj[key].path.replace(/^.*features/,''));
                        }
                        return;
@@ -134,6 +140,8 @@
 
             app.printFeature(includedFeature, includedFeaturesWrapper);
             app.printFeature(excludedFeature, excludedFeaturesWrapper);
+
+            app.updateFeaturesToRun();
         }
 
         /**
@@ -556,6 +564,8 @@
                                 }
                             }
                         }
+
+                        app.updateFeaturesToRun();
                     });
                 });
             });
@@ -585,6 +595,8 @@
                         if (parentExcludeFolderBtn.checked) {
                             parentExcludeFolderBtn.checked = false;
                         }
+
+                        app.updateFeaturesToRun();
                     });
                 });
             });
@@ -611,13 +623,64 @@
                 //Empty included/excluded feature lists
                 app.printFeature([], includedFeaturesWrapper);
                 app.printFeature([], excludedFeaturesWrapper);
+
+                app.updateFeaturesToRun();
             });
         }
         return app.resetClick = init;
     })();
 
 
+    (function() {
+        function updateFeaturesToRun() {
+            var selectedFolderEl = document.querySelector('[data-type="dir"]:checked');
+            var collecting = (selectedFolderEl.dataset.path === 'all') ? true : false;
+            var selectedFeatures = [];
+            var includedTag = app.getTags().included;
+            var excludedTag = app.getTags().excluded;
+            var excludedFolders = [].map.call(document.querySelectorAll('[data-type="exclude"]:checked'), function(el) {
+               return el.dataset.path;
+            });
 
+            featuresToRunContainer.innerHTML = '';
+
+            (function processFeatureLine(obj) {
+                var key;
+
+                for (key in obj) {
+                    if (obj[key].type === 'file') {
+                        if (!app.arrayIntersect(excludedTag, obj[key].tags).length
+                            && collecting
+                            && (!includedTag.length || app.arrayIntersect(includedTag, obj[key].tags).length)
+                            && (!excludedFolders.length || excludedFolders.every(function(excludedFolder){
+                                return Boolean(obj[key].path.indexOf(excludedFolder) === -1);
+                            }))
+                        ) {
+                            selectedFeatures.push(obj[key].path);
+                        }
+                    } else {
+                        if (obj[key].subDir) {
+                            if (obj[key].path.indexOf(selectedFolderEl.dataset.path) === 0) {
+                                collecting = true;
+                            } else if (selectedFolderEl.dataset.path !== 'all') {
+                                collecting = false;
+                            }
+                            processFeatureLine(obj[key].subDir);
+                        }
+                    }
+                };
+            })(featuresObj);
+
+            app.printFeature(selectedFeatures, featuresToRunContainer);
+        }
+
+        return app.updateFeaturesToRun = updateFeaturesToRun;
+    })();
+
+
+    ////////////////
+    //Module calls//
+    ////////////////
     app.getRequest('http://localhost:3000/environments', function (responseObj) {
         var parent = document.getElementById('environmentsFormInner');
 
@@ -638,7 +701,6 @@
     app.getRequest('http://localhost:3000/features', function (responseObj) {
         //Cache response
         featuresObj = responseObj;
-
         app.insertFeatureLine(responseObj, document.getElementById('filesFormInner'));
 
         if (tags.length) {
@@ -647,6 +709,7 @@
             });
             app.manageTags(uniqueTags);
         }
+        app.updateFeaturesToRun();
         document.dispatchEvent(featureListReady);
     });
 
